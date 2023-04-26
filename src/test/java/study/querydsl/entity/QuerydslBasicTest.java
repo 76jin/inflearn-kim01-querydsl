@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.*;
+import static study.querydsl.entity.QMember.*;
 
 @SpringBootTest
 @Transactional
@@ -56,8 +57,6 @@ public class QuerydslBasicTest {
 
     @Test
     void startQuerydsl() {
-        QMember member = QMember.member;
-
         Member findMember = queryFactory
                 .select(member)
                 .from(member)
