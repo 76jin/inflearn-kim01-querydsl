@@ -127,4 +127,14 @@ public class QuerydslBasicTest {
                 .selectFrom(member)
                 .fetchCount();
     }
+
+    /**
+     * 회원 정렬 순서
+     * 1. 회원 나이 - 내림차순
+     *
+     */
+    @Test
+    void sort() {
+
+    }
 }
