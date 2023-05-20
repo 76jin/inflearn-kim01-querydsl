@@ -3,6 +3,7 @@ package study.querydsl.entity;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -493,5 +494,33 @@ public class QuerydslBasicTest {
             System.out.print("age = " + age + " ");
             System.out.println("rank = " + rank);
         }
+    }
+
+    /**
+     * 문자 더하기
+     * - 최적화가 가능하면, SQL에 상수값(A)를 넘기지 않는다.
+     */
+    @Test
+    void constant_string() {
+        Tuple result = queryFactory.select(member.username, Expressions.constant("A"))
+                .from(member)
+                .fetchFirst();
+
+        System.out.println("### result :" + result);
+    }
+
+    /**
+     * 상수 더하기
+     * - 문자가 아닌 다른 타입은 stringValue() 로 문자로 변환한다.
+     *   - ENUM 처리할 때 자주 사용.
+     */
+    @Test
+    void constant_numer() {
+        String result = queryFactory.select(member.username.concat("_").concat(member.age.stringValue()))
+                .from(member)
+                .where(member.username.eq("member1"))
+                .fetchOne();
+
+        System.out.println("### result:" + result);
     }
 }
