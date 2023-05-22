@@ -515,12 +515,39 @@ public class QuerydslBasicTest {
      *   - ENUM 처리할 때 자주 사용.
      */
     @Test
-    void constant_numer() {
+    void concat() {
         String result = queryFactory.select(member.username.concat("_").concat(member.age.stringValue()))
                 .from(member)
                 .where(member.username.eq("member1"))
                 .fetchOne();
 
         System.out.println("### result:" + result);
+    }
+
+    @Test
+    void simpleProjection() {
+        List<String> fetch = queryFactory
+                .select(member.username)
+                .from(member)
+                .fetch();
+
+        for (String username : fetch) {
+            System.out.println("### username:" + username);
+        }
+    }
+
+    @Test
+    void tupleProjection() {
+        List<Tuple> tuples = queryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : tuples) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("### username:" + username);
+            System.out.println("### age:" + age);
+        }
     }
 }
