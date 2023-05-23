@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -715,5 +716,96 @@ public class QuerydslBasicTest {
 
     private BooleanExpression allEq(String usernameCond, Integer ageCond) {
         return usernameEq(usernameCond).and(ageEq(ageCond));
+    }
+
+    /**
+     * 쿼리 한번으로 대량 데이터 수정
+     * - update() : 영속성 컨텍스트에 있는 엔티티를 무시하고, DB에 바로 실행한다.
+     * - DB와 영속성 컨텍스트의 내용이 다를 경우, 항상 영속성 컨텍스트가 우선권을 가진다.
+     * - 배치 쿼리를 수행하고 나면 영속성 컨텍스트를 초기화 하는 것이 안전하다.
+     */
+    @Test
+//  @Commit
+    void bulkUpdate() {
+        // member1 = 10 -> DB 비회원
+        // member2 = 20 -> DB 비회원
+        // member3 = 30 -> DB member3
+        // member4 = 40 -> DB member4
+
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        System.out.println("count:" + count);
+
+        // 1 member1 = 10 -> 1 DB member1
+        // 2 member2 = 20 -> 2 DB member2
+        // 3 member3 = 30 -> 3 DB member3
+        // 4 member4 = 40 -> 4 DB member4
+
+        // 영속성 컨텍스트 초기화
+        em.flush();
+        em.clear();
+
+        // 1 member1 = 10 -> 1 DB 비회원
+        // 2 member2 = 20 -> 2 DB 비회원
+        // 3 member3 = 30 -> 3 DB member3
+        // 4 member4 = 40 -> 4 DB member4
+
+        List<Member> members = queryFactory
+                .select(member)
+                .from(member)
+                .fetch();
+
+        for (Member member : members) {
+            System.out.println("member = " + member);
+        }
+    }
+
+    @Test
+    void bulkAdd() {
+        long count = queryFactory
+                .update(member)
+//                .set(member.age, member.age.add(1))
+                .set(member.age, member.age.add(-1))
+//                .set(member.age, member.age.multiply(2))
+                .execute();
+
+        System.out.println("count = " + count);
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = queryFactory
+                .select(member)
+                .from(member)
+                .fetch();
+
+        for (Member member : members){
+            System.out.println("member = " + member);
+        }
+    }
+
+    @Test
+    void bulkDelete() {
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+
+        System.out.println("count = " + count);
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = queryFactory
+                .select(member)
+                .from(member)
+                .fetch();
+        for (Member member : members) {
+            System.out.println("member = " + member);
+        }
     }
 }
