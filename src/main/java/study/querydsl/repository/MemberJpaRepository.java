@@ -111,7 +111,7 @@ public class MemberJpaRepository {
 
     private BooleanExpression ageBetween(Integer ageLoe, Integer ageGoe) {
         if (ageLoe == null || ageGoe == null) {
-            throw new IllegalArgumentException("날짜 입력이 잘못됐습니다.");
+            return null;
         }
         return ageLoe(ageLoe).and(ageGoe(ageGoe));
     }
